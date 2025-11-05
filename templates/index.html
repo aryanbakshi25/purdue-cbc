@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purdue Dining Hall Recommender</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #CFB991 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        input[type="text"],
+        input[type="time"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="time"]:focus {
+            outline: none;
+            border-color: #CFB991;
+            box-shadow: 0 0 0 3px rgba(207, 185, 145, 0.2);
+        }
+
+        .food-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .food-chip {
+            background: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .food-chip:hover {
+            background: #CFB991;
+            color: #000000;
+            transform: translateY(-2px);
+            font-weight: 600;
+        }
+
+        .time-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .time-input-wrapper input[type="text"] {
+            flex: 1;
+        }
+
+        .period-select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .period-select:focus {
+            outline: none;
+            border-color: #CFB991;
+            box-shadow: 0 0 0 3px rgba(207, 185, 145, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #CFB991 0%, #D4AF37 100%);
+            color: #000000;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(207, 185, 145, 0.4);
+            background: linear-gradient(135deg, #D4AF37 0%, #CFB991 100%);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-header {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .recommendation-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #CFB991;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .hall-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .hall-time {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .hall-foods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .food-tag {
+            background: #CFB991;
+            color: #000000;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+
+        .no-results-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #CFB991;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #CFB991;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ Purdue Dining Hall Recommender</h1>
+        <p class="subtitle">Find the perfect dining hall for your cravings</p>
+
+        <form id="recommendForm">
+            <div class="form-group">
+                <label for="food">What are you craving?</label>
+                <input type="text" id="food" name="food" placeholder="e.g., Pizza, Burgers, Vegan..." required>
+                <div class="food-suggestions">
+                    {% for food in foods %}
+                    <span class="food-chip" onclick="selectFood('{{ food }}')">{{ food }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="time">What time is it?</label>
+                <div class="time-input-wrapper">
+                    <input type="text" id="time" name="time" placeholder="e.g., 6:30" required pattern="[0-9]{1,2}:[0-9]{2}">
+                    <select id="period" class="period-select">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <small style="color: #666; font-size: 0.85em; margin-top: 5px; display: block;">Format: H:MM (e.g., 6:30, 11:00)</small>
+            </div>
+
+            <button type="submit">Find Dining Halls</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Finding the perfect dining hall...</p>
+        </div>
+
+        <div class="results" id="results">
+            <div class="results-header" id="resultsHeader"></div>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        function selectFood(food) {
+            document.getElementById('food').value = food;
+        }
+
+        // Set default time to current time
+        function setCurrentTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            const period = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            if (hours === 0) hours = 12;
+            
+            const timeString = `${hours}:${minutes.toString().padStart(2, '0')}`;
+            document.getElementById('time').value = timeString;
+            document.getElementById('period').value = period;
+        }
+
+        setCurrentTime();
+
+        document.getElementById('recommendForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const food = document.getElementById('food').value.trim();
+            const timeInput = document.getElementById('time').value.trim();
+            const period = document.getElementById('period').value;
+            
+            // Format as "H:MM AM/PM"
+            const timeString = `${timeInput} ${period}`;
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('results').classList.remove('show');
+
+            try {
+                const response = await fetch('/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        food: food,
+                        time: timeString
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Hide loading
+                document.getElementById('loading').classList.remove('show');
+                
+                // Display results
+                const resultsDiv = document.getElementById('results');
+                const resultsContent = document.getElementById('resultsContent');
+                const resultsHeader = document.getElementById('resultsHeader');
+                
+                if (data.recommendations && data.recommendations.length > 0) {
+                    resultsHeader.textContent = `✅ Found ${data.count} dining hall${data.count > 1 ? 's' : ''} serving ${food}:`;
+                    
+                    resultsContent.innerHTML = data.recommendations.map(hall => `
+                        <div class="recommendation-card">
+                            <div class="hall-name">${hall.name}</div>
+                            <div class="hall-time">🕐 Open: ${hall.open_time} - ${hall.close_time}</div>
+                            <div class="hall-foods">
+                                ${hall.foods.map(f => `<span class="food-tag">${f}</span>`).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    resultsHeader.textContent = '';
+                    resultsContent.innerHTML = `
+                        <div class="no-results">
+                            <div class="no-results-icon">😔</div>
+                            <p>No dining halls are currently open and serving ${food}.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em;">Try a different food option or check back later!</p>
+                        </div>
+                    `;
+                }
+                
+                resultsDiv.classList.add('show');
+                
+                // Scroll to results
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').classList.remove('show');
+                alert('An error occurred. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
